@@ -8,5 +8,37 @@
   </head>
   <body>
     <h1>Chat</h1>
-  </body>
+    <button>Connect</button>
+    <form>
+        <input type="text" placeholder="write msg">
+        <button>보내기</button>
+    </form>
+    <ul></ul>
+    <script>
+        const button = document.querySelector("button");
+        const form = document.querySelector("form");
+        const ul = document.querySelector("ul");
+        
+        button.addEventListener("click", () => {
+            const ws = window.location.protocol === "https:" ? "wss" : "ws";
+            const socket = new WebSocket(`${ws}://${window.location.host}/connect`);
+
+            socket.addEventListener("open", () => {
+                console.log("connect");
+                form.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const input = form.querySelector("input");
+                    socket.send(JSON.stringify({message: input.value}));
+                    input.value ='';
+                })
+            });
+
+            socket.addEventListener("message", (event) => {
+                const data = JSON.parse(event.data);
+                const li = document.createElement("li");
+                li.innerText = data.message;
+                ul.appendChild(li);
+            })
+        })
+    </script>
 </html>
